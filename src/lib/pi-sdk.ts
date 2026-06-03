@@ -6,12 +6,29 @@ export type PiAuthResult = {
   user: { uid: string; username: string };
 };
 
+export type PiPaymentData = {
+  amount: number;
+  memo: string;
+  metadata: Record<string, unknown>;
+};
+
+export type PiPaymentCallbacks = {
+  onReadyForServerApproval: (paymentId: string) => void;
+  onReadyForServerCompletion: (paymentId: string, txid: string) => void;
+  onCancel: (paymentId: string) => void;
+  onError: (error: Error, payment?: unknown) => void;
+};
+
 type PiSDK = {
   init: (opts: { version: string; sandbox?: boolean }) => Promise<void> | void;
   authenticate: (
     scopes: string[],
     onIncompletePaymentFound: (payment: unknown) => void,
   ) => Promise<PiAuthResult>;
+  createPayment: (
+    paymentData: PiPaymentData,
+    callbacks: PiPaymentCallbacks,
+  ) => void;
 };
 
 declare global {
@@ -63,8 +80,15 @@ export function getPi(): Promise<PiSDK> {
 
 export async function authenticateWithPi(): Promise<PiAuthResult> {
   const Pi = await getPi();
-  return Pi.authenticate(["username"], (payment) => {
-    // Required callback for incomplete payments — no-op for auth-only flow.
+  return Pi.authenticate(["username", "payments"], (payment) => {
     console.warn("[Pi] Incomplete payment found:", payment);
   });
+}
+
+export async function createPiPayment(
+  paymentData: PiPaymentData,
+  callbacks: PiPaymentCallbacks,
+): Promise<void> {
+  const Pi = await getPi();
+  Pi.createPayment(paymentData, callbacks);
 }

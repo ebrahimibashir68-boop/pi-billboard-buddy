@@ -3,6 +3,7 @@ import heroStadium from "@/assets/hero-stadium.jpg";
 import cityBillboards from "@/assets/city-billboards.jpg";
 import arenaLed from "@/assets/arena-led.jpg";
 import { PiAuthButton } from "@/components/PiAuthButton";
+import { PiPayButton } from "@/components/PiPayButton";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -239,9 +240,9 @@ function PiSection() {
 
 function Pricing() {
   const tiers = [
-    { name: "Pioneer", price: "10", desc: "Test a creative on 5 screens for a single matchday.", perks: ["AI ad generator", "5 screen impressions", "Basic analytics"] },
-    { name: "Stadium", price: "500", desc: "Run a full campaign across a regional league.", perks: ["Unlimited AI renders", "Up to 200 venues", "Live bidding engine", "Pi wallet payouts"], featured: true },
-    { name: "Global", price: "Custom", desc: "World-cup-grade reach, multi-language, broadcast sync.", perks: ["12,000+ venues", "Dedicated AI tuning", "On-chain audit dashboard", "24/7 ops desk"] },
+    { name: "Pioneer", price: "10", amount: 10, desc: "Test a creative on 5 screens for a single matchday.", perks: ["AI ad generator", "5 screen impressions", "Basic analytics"] },
+    { name: "Stadium", price: "500", amount: 500, desc: "Run a full campaign across a regional league.", perks: ["Unlimited AI renders", "Up to 200 venues", "Live bidding engine", "Pi wallet payouts"], featured: true },
+    { name: "Global", price: "Custom", amount: 0, desc: "World-cup-grade reach, multi-language, broadcast sync.", perks: ["12,000+ venues", "Dedicated AI tuning", "On-chain audit dashboard", "24/7 ops desk"] },
   ];
   return (
     <section id="pricing" className="mx-auto max-w-7xl px-6 py-28">
@@ -265,9 +266,21 @@ function Pricing() {
             <ul className="mt-6 space-y-2 text-sm">
               {t.perks.map((p) => <li key={p} className="flex gap-2"><span className="text-accent">✓</span>{p}</li>)}
             </ul>
-            <a href="#cta" className={`mt-8 inline-block w-full text-center px-4 py-2.5 rounded-full font-medium transition ${t.featured ? "bg-[image:var(--gradient-neon)] text-primary-foreground hover:opacity-90" : "border border-border hover:bg-secondary"}`}>
-              Choose {t.name}
-            </a>
+            <div className="mt-8">
+              {t.amount > 0 ? (
+                <PiPayButton
+                  amount={t.amount}
+                  memo={`PiBoards ${t.name} plan`}
+                  metadata={{ tier: t.name }}
+                  label={`Pay ${t.amount} π`}
+                  className={`w-full text-center px-4 py-2.5 rounded-full font-medium transition ${t.featured ? "bg-[image:var(--gradient-neon)] text-primary-foreground hover:opacity-90" : "border border-border hover:bg-secondary"}`}
+                />
+              ) : (
+                <a href="#cta" className="inline-block w-full text-center px-4 py-2.5 rounded-full font-medium transition border border-border hover:bg-secondary">
+                  Contact sales
+                </a>
+              )}
+            </div>
           </div>
         ))}
       </div>
