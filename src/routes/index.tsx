@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import heroStadium from "@/assets/hero-stadium.jpg";
 import cityBillboards from "@/assets/city-billboards.jpg";
 import arenaLed from "@/assets/arena-led.jpg";
+import { PiAuthButton } from "@/components/PiAuthButton";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -45,9 +46,7 @@ function Nav() {
           <a href="#pi" className="hover:text-foreground transition">Pi Network</a>
           <a href="#pricing" className="hover:text-foreground transition">Pricing</a>
         </nav>
-        <a href="#cta" className="px-4 py-2 rounded-full text-sm font-medium bg-[image:var(--gradient-neon)] text-primary-foreground hover:opacity-90 transition glow-indigo">
-          Launch a Campaign
-        </a>
+        <PiAuthButton />
       </div>
     </header>
   );
