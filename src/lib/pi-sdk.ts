@@ -72,7 +72,8 @@ export function getPi(): Promise<PiSDK> {
   initPromise = (async () => {
     const Pi = await loadScript();
     // Pi.init may return a Promise or void — await defensively.
-    await Promise.resolve(Pi.init({ version: "2.0", sandbox: true }));
+    const sandbox = import.meta.env.VITE_PI_SANDBOX === "true";
+    await Promise.resolve(Pi.init({ version: "2.0", sandbox }));
     return Pi;
   })();
   return initPromise;
