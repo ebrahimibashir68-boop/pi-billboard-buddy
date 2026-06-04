@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { getPiSession } from "./pi-auth.functions";
+import { getPiSession } from "./pi-session.server";
 
 const PI_API = "https://api.minepi.com/v2";
 
