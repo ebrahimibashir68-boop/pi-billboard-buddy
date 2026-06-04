@@ -3,10 +3,12 @@ import { useSession } from "@tanstack/react-start/server";
 export type PiSessionData = { uid: string; username: string };
 
 function sessionConfig() {
-  const password =
-    process.env.SESSION_SECRET ||
-    process.env.PI_API_KEY ||
-    "dev-only-insecure-session-secret-please-set-SESSION_SECRET-env";
+  const password = process.env.SESSION_SECRET;
+  if (!password || password.length < 32) {
+    throw new Error(
+      "SESSION_SECRET env var must be set to a random string of at least 32 characters",
+    );
+  }
   return {
     password,
     name: "pi_session",
