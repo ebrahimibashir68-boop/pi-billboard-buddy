@@ -1,0 +1,9 @@
+# PiBoards
+
+> AI-generated advertising for stadium screens, arena LEDs, and global billboards — settled in Pi.
+
+PiBoards turns a text prompt into a broadcast-ready ad and ships it to LED ribbons, jumbotrons, arena facades, and street billboards. Campaigns are auctioned in real time by AI and settled instantly via the Pi Network.
+
+## Pages
+
+- [Home](/): Overview, how it works, venues, Pi Network integration, and pricing tiers.
