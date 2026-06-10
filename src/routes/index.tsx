@@ -13,6 +13,31 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "PiBoards — AI Ads on Live Venues, Powered by Pi" },
       { property: "og:description", content: "Design, target, and run AI-generated ads on stadium screens, arena LEDs and global billboards. Settled in Pi." },
     ],
+    links: [
+      { rel: "canonical", href: "https://pi-billboard-buddy.lovable.app/" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "PiBoards",
+          url: "https://pi-billboard-buddy.lovable.app/",
+          description:
+            "AI-generated advertising for stadium screens, arena LEDs, and global billboards — settled in Pi.",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "PiBoards",
+          url: "https://pi-billboard-buddy.lovable.app/",
+        }),
+      },
+    ],
   }),
   component: Index,
 });
@@ -57,7 +82,7 @@ function Hero() {
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 -z-10">
-        <img src={heroStadium} alt="" width={1920} height={1280} className="h-full w-full object-cover opacity-40" />
+        <img src={heroStadium} alt="" width={1920} height={1280} fetchPriority="high" decoding="async" className="h-full w-full object-cover opacity-40" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
       </div>
 
@@ -299,6 +324,7 @@ function CTA() {
           <input
             type="email"
             required
+            aria-label="Email address"
             placeholder="you@brand.com"
             className="flex-1 px-5 py-3 rounded-full bg-background/60 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
