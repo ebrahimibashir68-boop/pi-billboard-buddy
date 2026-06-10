@@ -77,6 +77,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "google-site-verification", content: "XPIwI92E0qc6n1t0heXo1wFtDKitHDE6v0-SuUtmKNA" },
       { title: "PiBoards — AI Stadium Advertising" },
       { name: "description", content: "Pi Stadium Ads prepares, produces, and intelligently executes advertisements on global sports and live venue billboards within the Pi ecosystem." },
       { name: "author", content: "PiBoards" },
