@@ -4,6 +4,7 @@ import cityBillboards from "@/assets/city-billboards.jpg";
 import arenaLed from "@/assets/arena-led.jpg";
 import { PiAuthButton } from "@/components/PiAuthButton";
 import { PiPayButton } from "@/components/PiPayButton";
+import { InnovationFeed } from "@/components/InnovationFeed";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -51,6 +52,7 @@ function Index() {
       <HowItWorks />
       <Venues />
       <PiSection />
+      <InnovationFeed />
       <Pricing />
       <CTA />
       <Footer />
@@ -70,6 +72,7 @@ function Nav() {
           <a href="#how" className="hover:text-foreground transition">How it works</a>
           <a href="#venues" className="hover:text-foreground transition">Venues</a>
           <a href="#pi" className="hover:text-foreground transition">Pi Network</a>
+          <a href="#innovation" className="hover:text-foreground transition">What&apos;s new</a>
           <a href="#pricing" className="hover:text-foreground transition">Pricing</a>
         </nav>
         <PiAuthButton />
