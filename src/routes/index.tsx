@@ -72,6 +72,7 @@ function Nav() {
           <a href="#how" className="hover:text-foreground transition">How it works</a>
           <a href="#venues" className="hover:text-foreground transition">Venues</a>
           <a href="#pi" className="hover:text-foreground transition">Pi Network</a>
+          <a href="#innovation" className="hover:text-foreground transition">What&apos;s new</a>
           <a href="#pricing" className="hover:text-foreground transition">Pricing</a>
         </nav>
         <PiAuthButton />
