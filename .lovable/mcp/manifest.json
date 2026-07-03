@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "piboards-mcp",
+      "version": "0.1.0",
+      "title": "PiBoards MCP"
+    },
+    "tools": [
+      {
+        "name": "get_platform_overview",
+        "title": "Get PiBoards overview",
+        "description": "Return a concise overview of what PiBoards does: AI-generated ads run on stadium jumbotrons, arena LED ribbons, and global street billboards, auctioned in real time and settled in Pi Network cryptocurrency.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_venue_categories",
+        "title": "List PiBoards venue categories",
+        "description": "List the categories of screens PiBoards supports (stadium jumbotrons, arena LED ribbons, street billboards) with format, typical slot length, and audience notes.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "generate_ad_concepts",
+        "title": "Generate PiBoards ad concepts",
+        "description": "Generate 3 short ad concepts (headline + one-line visual direction) for a brand or product, tailored to a PiBoards venue category.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "brand": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "Brand or product name"
+            },
+            "pitch": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 600,
+              "description": "What the brand does or wants to promote"
+            },
+            "venue": {
+              "type": "string",
+              "enum": [
+                "stadium_jumbotron",
+                "arena_led_ribbon",
+                "street_billboard"
+              ],
+              "description": "Target PiBoards venue category"
+            }
+          },
+          "required": [
+            "brand",
+            "pitch",
+            "venue"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
