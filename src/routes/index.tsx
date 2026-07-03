@@ -5,6 +5,7 @@ import arenaLed from "@/assets/arena-led.jpg";
 import { PiAuthButton } from "@/components/PiAuthButton";
 import { PiPayButton } from "@/components/PiPayButton";
 import { InnovationFeed } from "@/components/InnovationFeed";
+import { SettingsMenu } from "@/components/SettingsMenu";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -75,7 +76,10 @@ function Nav() {
           <a href="#innovation" className="hover:text-foreground transition">What&apos;s new</a>
           <a href="#pricing" className="hover:text-foreground transition">Pricing</a>
         </nav>
-        <PiAuthButton />
+        <div className="flex items-center gap-2">
+          <PiAuthButton />
+          <SettingsMenu />
+        </div>
       </div>
     </header>
   );
