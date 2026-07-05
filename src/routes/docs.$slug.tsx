@@ -28,7 +28,7 @@ export const Route = createFileRoute("/docs/$slug")({
 function DocPage() {
   const { doc, markdown } = Route.useLoaderData();
   return (
-    <article className="prose prose-invert max-w-none prose-headings:tracking-tight prose-a:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-pre:border prose-pre:border-border">
+    <article className="markdown-body max-w-none">
       <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Pi Reference</div>
       <h1 className="!mb-6">{doc.title}</h1>
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
