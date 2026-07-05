@@ -14,6 +14,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DocsIndexRouteImport } from './routes/docs.index'
+import { Route as DocsSlugRouteImport } from './routes/docs.$slug'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -43,6 +44,11 @@ const DocsIndexRoute = DocsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DocsRoute,
 } as any)
+const DocsSlugRoute = DocsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => DocsRoute,
+} as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
   Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
     id: '/.well-known/oauth-protected-resource',
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/docs/$slug': typeof DocsSlugRoute
   '/docs/': typeof DocsIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/docs/$slug': typeof DocsSlugRoute
   '/docs': typeof DocsIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/docs/$slug': typeof DocsSlugRoute
   '/docs/': typeof DocsIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/docs/$slug'
     | '/docs/'
     | '/.mcp/invoke-tool/$tool'
   fileRoutesByTo: FileRoutesByTo
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/docs/$slug'
     | '/docs'
     | '/.mcp/invoke-tool/$tool'
   id:
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/docs/$slug'
     | '/docs/'
     | '/.mcp/invoke-tool/$tool'
   fileRoutesById: FileRoutesById
@@ -171,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsIndexRouteImport
       parentRoute: typeof DocsRoute
     }
+    '/docs/$slug': {
+      id: '/docs/$slug'
+      path: '/$slug'
+      fullPath: '/docs/$slug'
+      preLoaderRoute: typeof DocsSlugRouteImport
+      parentRoute: typeof DocsRoute
+    }
     '/.well-known/oauth-protected-resource': {
       id: '/.well-known/oauth-protected-resource'
       path: '/.well-known/oauth-protected-resource'
@@ -196,10 +215,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface DocsRouteChildren {
+  DocsSlugRoute: typeof DocsSlugRoute
   DocsIndexRoute: typeof DocsIndexRoute
 }
 
 const DocsRouteChildren: DocsRouteChildren = {
+  DocsSlugRoute: DocsSlugRoute,
   DocsIndexRoute: DocsIndexRoute,
 }
 
