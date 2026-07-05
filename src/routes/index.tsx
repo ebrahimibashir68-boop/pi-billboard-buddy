@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import heroStadium from "@/assets/hero-stadium.jpg";
 import cityBillboards from "@/assets/city-billboards.jpg";
 import arenaLed from "@/assets/arena-led.jpg";
@@ -75,6 +75,7 @@ function Nav() {
           <a href="#pi" className="hover:text-foreground transition">Pi Network</a>
           <a href="#innovation" className="hover:text-foreground transition">What&apos;s new</a>
           <a href="#pricing" className="hover:text-foreground transition">Pricing</a>
+          <Link to="/docs" className="hover:text-foreground transition">Docs</Link>
         </nav>
         <div className="flex items-center gap-2">
           <PiAuthButton />
