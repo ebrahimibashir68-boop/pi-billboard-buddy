@@ -11,6 +11,7 @@ const DOCS = [
   { slug: "pinet", title: "PiNet Metadata" },
   { slug: "developer_portal", title: "Pi Developer Portal" },
   { slug: "tokens", title: "Tokens" },
+  { slug: "piverify", title: "PiVerify API (KYC)" },
 ];
 
 export const Route = createFileRoute("/docs")({
