@@ -21,6 +21,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AuthenticatedPartnersIndexRouteImport } from './routes/_authenticated/partners.index'
 import { Route as AuthenticatedCampaignsIndexRouteImport } from './routes/_authenticated/campaigns.index'
+import { Route as AuthenticatedPartnersSlugRouteImport } from './routes/_authenticated/partners.$slug'
 import { Route as AuthenticatedCampaignsNewRouteImport } from './routes/_authenticated/campaigns.new'
 import { Route as AuthenticatedCampaignsIdRouteImport } from './routes/_authenticated/campaigns.$id'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -88,6 +89,12 @@ const AuthenticatedCampaignsIndexRoute =
     path: '/campaigns/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPartnersSlugRoute =
+  AuthenticatedPartnersSlugRouteImport.update({
+    id: '/partners/$slug',
+    path: '/partners/$slug',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCampaignsNewRoute =
   AuthenticatedCampaignsNewRouteImport.update({
     id: '/campaigns/new',
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
   '/campaigns/new': typeof AuthenticatedCampaignsNewRoute
+  '/partners/$slug': typeof AuthenticatedPartnersSlugRoute
   '/campaigns/': typeof AuthenticatedCampaignsIndexRoute
   '/partners/': typeof AuthenticatedPartnersIndexRoute
 }
@@ -135,6 +143,7 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
   '/campaigns/new': typeof AuthenticatedCampaignsNewRoute
+  '/partners/$slug': typeof AuthenticatedPartnersSlugRoute
   '/campaigns': typeof AuthenticatedCampaignsIndexRoute
   '/partners': typeof AuthenticatedPartnersIndexRoute
 }
@@ -153,6 +162,7 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
   '/_authenticated/campaigns/new': typeof AuthenticatedCampaignsNewRoute
+  '/_authenticated/partners/$slug': typeof AuthenticatedPartnersSlugRoute
   '/_authenticated/campaigns/': typeof AuthenticatedCampaignsIndexRoute
   '/_authenticated/partners/': typeof AuthenticatedPartnersIndexRoute
 }
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/campaigns/$id'
     | '/campaigns/new'
+    | '/partners/$slug'
     | '/campaigns/'
     | '/partners/'
   fileRoutesByTo: FileRoutesByTo
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/campaigns/$id'
     | '/campaigns/new'
+    | '/partners/$slug'
     | '/campaigns'
     | '/partners'
   id:
@@ -203,6 +215,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/campaigns/$id'
     | '/_authenticated/campaigns/new'
+    | '/_authenticated/partners/$slug'
     | '/_authenticated/campaigns/'
     | '/_authenticated/partners/'
   fileRoutesById: FileRoutesById
@@ -305,6 +318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCampaignsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/partners/$slug': {
+      id: '/_authenticated/partners/$slug'
+      path: '/partners/$slug'
+      fullPath: '/partners/$slug'
+      preLoaderRoute: typeof AuthenticatedPartnersSlugRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/campaigns/new': {
       id: '/_authenticated/campaigns/new'
       path: '/campaigns/new'
@@ -332,6 +352,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCampaignsIdRoute: typeof AuthenticatedCampaignsIdRoute
   AuthenticatedCampaignsNewRoute: typeof AuthenticatedCampaignsNewRoute
+  AuthenticatedPartnersSlugRoute: typeof AuthenticatedPartnersSlugRoute
   AuthenticatedCampaignsIndexRoute: typeof AuthenticatedCampaignsIndexRoute
   AuthenticatedPartnersIndexRoute: typeof AuthenticatedPartnersIndexRoute
 }
@@ -339,6 +360,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCampaignsIdRoute: AuthenticatedCampaignsIdRoute,
   AuthenticatedCampaignsNewRoute: AuthenticatedCampaignsNewRoute,
+  AuthenticatedPartnersSlugRoute: AuthenticatedPartnersSlugRoute,
   AuthenticatedCampaignsIndexRoute: AuthenticatedCampaignsIndexRoute,
   AuthenticatedPartnersIndexRoute: AuthenticatedPartnersIndexRoute,
 }
