@@ -14,6 +14,115 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_partners: {
+        Row: {
+          adapter: string
+          api_key_secret_name: string | null
+          created_at: string
+          description: string | null
+          id: string
+          logo_emoji: string | null
+          name: string
+          regions: string[]
+          slug: string
+          status: string
+          venue_categories: string[]
+        }
+        Insert: {
+          adapter?: string
+          api_key_secret_name?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_emoji?: string | null
+          name: string
+          regions?: string[]
+          slug: string
+          status?: string
+          venue_categories?: string[]
+        }
+        Update: {
+          adapter?: string
+          api_key_secret_name?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_emoji?: string | null
+          name?: string
+          regions?: string[]
+          slug?: string
+          status?: string
+          venue_categories?: string[]
+        }
+        Relationships: []
+      }
+      ad_submissions: {
+        Row: {
+          advertiser_id: string
+          ai_check: string
+          ai_flags: string[]
+          ai_notes: string | null
+          campaign_id: string
+          creative_id: string
+          decided_at: string | null
+          id: string
+          partner_id: string
+          partner_notes: string | null
+          partner_review: string
+          submitted_at: string
+        }
+        Insert: {
+          advertiser_id: string
+          ai_check?: string
+          ai_flags?: string[]
+          ai_notes?: string | null
+          campaign_id: string
+          creative_id: string
+          decided_at?: string | null
+          id?: string
+          partner_id: string
+          partner_notes?: string | null
+          partner_review?: string
+          submitted_at?: string
+        }
+        Update: {
+          advertiser_id?: string
+          ai_check?: string
+          ai_flags?: string[]
+          ai_notes?: string | null
+          campaign_id?: string
+          creative_id?: string
+          decided_at?: string | null
+          id?: string
+          partner_id?: string
+          partner_notes?: string | null
+          partner_review?: string
+          submitted_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_submissions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_submissions_creative_id_fkey"
+            columns: ["creative_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_creatives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_submissions_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "ad_partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_creatives: {
         Row: {
           body: string | null
@@ -22,7 +131,11 @@ export type Database = {
           headline: string | null
           id: string
           image_url: string | null
+          kind: string
           model: string | null
+          overlay_json: Json
+          template_id: string | null
+          video_url: string | null
         }
         Insert: {
           body?: string | null
@@ -31,7 +144,11 @@ export type Database = {
           headline?: string | null
           id?: string
           image_url?: string | null
+          kind?: string
           model?: string | null
+          overlay_json?: Json
+          template_id?: string | null
+          video_url?: string | null
         }
         Update: {
           body?: string | null
@@ -40,7 +157,11 @@ export type Database = {
           headline?: string | null
           id?: string
           image_url?: string | null
+          kind?: string
           model?: string | null
+          overlay_json?: Json
+          template_id?: string | null
+          video_url?: string | null
         }
         Relationships: [
           {
@@ -188,6 +309,73 @@ export type Database = {
           },
         ]
       }
+      partner_admin_assignments: {
+        Row: {
+          created_at: string
+          id: string
+          partner_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          partner_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          partner_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_admin_assignments_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "ad_partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_registrations: {
+        Row: {
+          advertiser_id: string
+          created_at: string
+          decided_at: string | null
+          id: string
+          notes: string | null
+          partner_id: string
+          status: string
+        }
+        Insert: {
+          advertiser_id: string
+          created_at?: string
+          decided_at?: string | null
+          id?: string
+          notes?: string | null
+          partner_id: string
+          status?: string
+        }
+        Update: {
+          advertiser_id?: string
+          created_at?: string
+          decided_at?: string | null
+          id?: string
+          notes?: string | null
+          partner_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_registrations_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "ad_partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       schedule_slots: {
         Row: {
           campaign_id: string
@@ -241,15 +429,42 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "partner_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -376,6 +591,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "partner_admin"],
+    },
   },
 } as const

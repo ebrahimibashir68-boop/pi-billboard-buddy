@@ -1,60 +1,88 @@
-## PiBoards Ad Contracts MVP
+# PiBoards Design Studio + Partner Network
 
-End-to-end flow: an advertiser (individual or brand) writes a prompt → AI generates a text+image ad → a Stellar testnet smart contract escrows the Pi-equivalent budget → an AI distribution engine allocates the campaign across billboards → live "broadcast" feed shows plays and settles funds.
+Building on the existing `campaigns`, `contracts`, `schedule_slots` MVP. This adds a proper multi-format design studio, a partner registry (simulated now with real-API adapter seams), and a two-stage approval workflow.
 
-### 1. Campaign Builder UI (`/campaigns/new`)
-- Form: brand name, product pitch, ad type (text / image / both), target venues (stadium jumbotron, arena LED, street billboard), regions, start/end date, budget in Pi.
-- "Generate creative" button calls a `createServerFn` that:
-  - uses Lovable AI Gateway `google/gemini-3-flash-preview` for headline + body copy,
-  - uses Gemini image model for a 16:9 billboard mockup.
-- Preview panel shows the rendered ad on a mock jumbotron/ribbon/billboard frame.
+## 1. Design Studio (`/studio`)
 
-### 2. Smart Contract Layer (Stellar testnet)
-- Use `@stellar/stellar-sdk` on the server only.
-- On campaign create:
-  - server generates a fresh escrow keypair, funds it via Friendbot (testnet),
-  - builds a payment/claimable-balance transaction that locks the advertiser's budget with claim predicates: platform can claim as impressions are delivered; advertiser can reclaim after `endDate`.
-  - stores contract id, escrow public key, xdr, tx hash.
-- `/contracts/$id` page renders: parties, terms, budget, escrow address, txn hash link to Stellar testnet explorer, current state (Draft / Funded / Running / Settled / Refunded).
-- "Sign & fund" button: two paths — real Pi wallet (uses existing `PiPayButton`, settles in Pi via Pi API) OR testnet demo mode (auto-funds from Friendbot). Signature (Pi uid + timestamp) hashed and stored as on-contract memo.
+Single builder with four tabs, one campaign per session:
 
-### 3. AI Distribution Engine
-- Server fn `distributeCampaign({campaignId})`:
-  - fetches inventory (venues list already in MCP tool),
-  - calls Gemini with campaign + inventory → returns a schedule: array of `{venueId, slotStart, durationSec, costPi}` sized to budget.
-  - persists schedule; each play emits a settlement claim against the escrow (in demo mode, just decrements balance and appends a claim transaction to the contract log).
-- Live "Broadcast" feed on `/campaigns/$id` polls plays every few seconds, shows venue, timestamp, impressions estimate, Pi debited.
+- **Image ads** — prompt + brand fields → `google/gemini-3.1-flash-image` (Nano Banana 2) via `/v1/images/generations` streaming. 16:9 canvas, live preview on a mock jumbotron frame. Regenerate / iterate. Editable overlay: headline, subline, brand color, logo (upload → data URL for MVP).
+- **Text ads** — `google/gemini-3-flash-preview` generates 3 headline+tagline variants tuned to venue (jumbotron / ribbon / street). Pick one, edit inline.
+- **Video ads** — 5s billboard clip via `videogen--generate_video` (Seedance 1080p 16:9). Rendered client-side into the mock frame. Slow + expensive → guard with confirm dialog + cost note.
+- **Templates** — 6 hand-built billboard templates (Bold Sale, Product Hero, Event Countdown, Quote/Testimonial, Announcement, Minimal Type) with editable text/color/image slots. No AI required.
 
-### 4. Data (Lovable Cloud)
-Tables: `campaigns`, `campaign_creatives`, `contracts`, `contract_events`, `schedule_slots`. RLS: advertiser reads their own; platform role reads all. `user_roles` table + `has_role` per project standard.
+All four output to the same `campaign_creatives` table (new columns: `kind` enum image/text/video/template, `video_url`, `template_id`, `overlay_json`).
 
-### 5. Routes / files
+## 2. Partner Network
+
+New tables:
+- `ad_partners` — id, name, slug, regions[], venue_categories[], adapter (`simulated` | `broadsign` | `vistar` | `hivestack`), status (`active` | `coming_soon`), logo_url.
+- `partner_registrations` — advertiser ↔ partner, status (`pending` | `approved` | `rejected`), api_key_secret_name (nullable, for real adapters).
+- `ad_submissions` — creative ↔ partner, ai_check (`pending` | `passed` | `flagged`), ai_notes, partner_review (`pending` | `approved` | `rejected`), partner_notes, submitted_at, decided_at.
+
+Seed 12 real operators (JCDecaux, Clear Channel, Lamar, Outfront, Ströer, JCDecaux MENA, oOh!media, Focus Media, Broadsign Reach, Vistar, Hivestack, Place Exchange) — all `simulated` by default. Adapter interface in `src/lib/partner-adapters/`:
+
 ```text
-src/routes/campaigns.index.tsx        list my campaigns
-src/routes/campaigns.new.tsx          builder
-src/routes/campaigns.$id.tsx          live feed + contract summary
-src/routes/contracts.$id.tsx          contract detail + explorer link
-src/lib/campaigns.functions.ts        create/list campaigns
-src/lib/creative.functions.ts         AI text + image gen
-src/lib/contracts.functions.ts        escrow build/fund/claim/refund
-src/lib/distribution.functions.ts     AI schedule + tick
-src/lib/stellar.server.ts             Stellar SDK wrapper (testnet)
-supabase/migrations/*.sql             tables + RLS + grants
+partner-adapters/
+  index.ts          // resolveAdapter(partner) -> Adapter
+  simulated.ts      // mock approve/reject, mock playback receipts
+  broadsign.ts      // stub: reads secret, throws "configure keys"
+  vistar.ts
+  hivestack.ts
 ```
 
-### 6. Order of work this turn
-1. Enable Lovable Cloud (needed for auth, DB, RLS, secrets).
-2. Migration: tables + roles + policies + grants.
-3. `stellar.server.ts` + `contracts.functions.ts` (Friendbot fund + claimable balance).
-4. `creative.functions.ts` + `distribution.functions.ts` (Gemini text + image + schedule; wrap in `NoObjectGeneratedError` fallback).
-5. Routes + UI (shadcn cards, use existing token/theme).
-6. Home nav link to `/campaigns`.
+Real adapters ship as stubs that read `process.env[api_key_secret_name]` and throw a helpful "add BROADSIGN_API_KEY via Cloud secrets" when missing. User can flip a partner from simulated → real by pasting a key later.
 
-### Technical notes
-- Stellar SDK is Worker-compatible (pure JS, `fetch`-based Horizon). Testnet only — `Horizon: https://horizon-testnet.stellar.org`, Friendbot: `https://friendbot.stellar.org`.
-- Real Pi mainnet settlement stays behind the existing `PiPayButton` flow; smart contract itself lives on Stellar testnet because Pi mainnet contracts require Pi Core Team approval and cannot be deployed from this app.
-- All AI schema outputs use loose schemas + prompt-side constraints + `NoObjectGeneratedError` recovery (project rule).
-- Image gen goes to Lovable AI Gateway `/v1/images/generations`, stored as data URL in `campaign_creatives.image_url` for the MVP (swap to Cloud Storage later).
-- Costs: each AI call is metered; distribution engine caches schedules to avoid re-billing.
+Routes:
+- `/partners` — browse network, register (creates `partner_registrations` row, simulated auto-approves in 2s).
+- `/partners/$slug` — partner detail, my registration status.
 
-Confirm and I'll start with Cloud + migration + Stellar wrapper.
+## 3. Two-Stage Approval Workflow
+
+On submit from `/campaigns/$id`:
+1. **AI pre-check** — `google/gemini-3-flash-preview` moderates copy + (if image) vision-checks the image URL against policy (no explicit content, no unlicensed IP, no misleading claims). Structured output `{ passed: bool, flags: string[], notes: string }`. Store on `ad_submissions.ai_check`.
+2. **Partner review queue** — if AI passed, status → `pending` on partner side. Simulated adapter auto-approves after 5s with fake reviewer id; real adapter would post to partner API and poll. If partner_review = `approved`, escrow contract activates and distribution engine schedules against that partner's venues only.
+
+Partner admin dashboard (`/admin/partners/$slug/queue`) gated by `has_role(_, 'partner_admin')` — lists pending submissions, approve/reject with notes. Same UI works for simulated (self-serve demo) and real (staff use).
+
+## 4. Distribution Update
+
+`distributeCampaign` now filters venues by `approved partner registrations` for the campaign. Each play emits a settlement claim scoped to that partner. On real adapters, `tickPlays` would POST play receipts to the partner's proof-of-play endpoint.
+
+## 5. Data + Migrations
+
+One migration adds:
+- `campaign_creatives`: `kind`, `video_url`, `template_id`, `overlay_json`
+- Tables: `ad_partners`, `partner_registrations`, `ad_submissions`
+- Role: `partner_admin` in `app_role` enum
+- RLS: advertisers read own registrations/submissions; partner_admins read/write submissions for their partner (via `partner_admin_assignments` table linking user ↔ partner).
+- Seed 12 partners.
+- GRANTs on every new table.
+
+## 6. Files
+
+```text
+src/routes/_authenticated/studio.tsx                 // 4-tab builder
+src/routes/_authenticated/studio.$campaignId.tsx     // continue editing
+src/routes/_authenticated/partners.index.tsx
+src/routes/_authenticated/partners.$slug.tsx
+src/routes/_authenticated/admin.partners.$slug.queue.tsx
+src/lib/studio.functions.ts        // generate image (stream), text variants, video
+src/lib/partners.functions.ts      // list/register/approve
+src/lib/submissions.functions.ts   // submit, ai-precheck, partner-decide
+src/lib/partner-adapters/*.ts
+src/routes/api/generate-billboard-image.ts   // SSE image stream (needs server route, not createServerFn)
+src/routes/api/public/partner-webhooks/$slug.ts  // for real adapters to POST decisions back
+```
+
+## 7. Order of work this turn
+
+1. Migration (creatives cols + partner tables + role + seed + RLS/GRANTs).
+2. Partner adapter interface + simulated adapter + 3 stubs.
+3. Studio server fns + SSE image route + text/video fns.
+4. Submissions + AI pre-check + partner queue fns.
+5. Routes/UI: studio, partners, partner detail, admin queue.
+6. Wire distribution to filter by approved partners.
+7. Add `/studio` and `/partners` to home nav.
+
+Confirm and I'll build it.

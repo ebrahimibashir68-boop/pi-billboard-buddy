@@ -77,6 +77,7 @@ function Nav() {
           <a href="#pricing" className="hover:text-foreground transition">Pricing</a>
           <Link to="/docs" className="hover:text-foreground transition">Docs</Link>
           <Link to="/campaigns" className="hover:text-foreground transition">Campaigns</Link>
+          <Link to="/partners" className="hover:text-foreground transition">Partners</Link>
         </nav>
         <div className="flex items-center gap-2">
           <PiAuthButton />
