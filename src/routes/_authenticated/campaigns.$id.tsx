@@ -6,7 +6,9 @@ import { createContract } from "@/lib/contracts.functions";
 import { generateCreative } from "@/lib/creative.functions";
 import { distributeCampaign, tickPlays } from "@/lib/distribution.functions";
 import { stellarExplorerUrl, stellarTxUrl } from "@/lib/venues";
-import { useEffect } from "react";
+import { listPartners } from "@/lib/partners.functions";
+import { listMySubmissions, submitCreative } from "@/lib/submissions.functions";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/campaigns/$id")({
   head: () => ({ meta: [{ title: "Campaign — PiBoards" }] }),
@@ -35,6 +37,23 @@ function CampaignDetail() {
   const contract = useMutation({ mutationFn: () => contractFn({ data: { campaign_id: id } }), onSuccess: () => qc.invalidateQueries({ queryKey: ["campaign", id] }) });
   const dist = useMutation({ mutationFn: () => distFn({ data: { campaign_id: id } }), onSuccess: () => qc.invalidateQueries({ queryKey: ["campaign", id] }) });
   const tick = useMutation({ mutationFn: () => tickFn({ data: { campaign_id: id } }), onSuccess: () => qc.invalidateQueries({ queryKey: ["campaign", id] }) });
+
+  const partnersFn = useServerFn(listPartners);
+  const subsFn = useServerFn(listMySubmissions);
+  const submitFn = useServerFn(submitCreative);
+  const partnersQ = useQuery({ queryKey: ["partners"], queryFn: () => partnersFn() });
+  const subsQ = useQuery({
+    queryKey: ["submissions", id],
+    queryFn: () => subsFn({ data: { campaign_id: id } }),
+    refetchInterval: 4000,
+  });
+  const [pickedPartner, setPickedPartner] = useState<string>("");
+  const submit = useMutation({
+    mutationFn: (partner_id: string) => submitFn({ data: { campaign_id: id, creative_id: q.data!.creatives[0].id, partner_id } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["submissions", id] });
+    },
+  });
 
   // Auto-tick every 5s once running with unplayed slots
   useEffect(() => {
@@ -196,6 +215,75 @@ function CampaignDetail() {
             </div>
           </section>
         )}
+
+        {/* Partner submissions */}
+        <section className="rounded-2xl border border-border bg-card/60 backdrop-blur p-6 space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <h2 className="text-lg font-semibold">Partner submissions</h2>
+            <Link to="/partners" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">Manage partners →</Link>
+          </div>
+          {!latestCreative ? (
+            <p className="text-muted-foreground text-sm">Generate a creative first, then submit it to a billboard partner for two-stage AI + partner review.</p>
+          ) : (
+            <>
+              <div className="flex gap-2 flex-wrap items-center">
+                <select
+                  value={pickedPartner}
+                  onChange={(e) => setPickedPartner(e.target.value)}
+                  className="px-3 py-2 rounded-lg bg-background/60 border border-border text-sm"
+                >
+                  <option value="">Select approved partner…</option>
+                  {(partnersQ.data ?? []).filter((p) => p.registration?.status === "approved").map((p) => (
+                    <option key={p.id} value={p.id}>{p.logo_emoji} {p.name}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => pickedPartner && submit.mutate(pickedPartner)}
+                  disabled={!pickedPartner || submit.isPending}
+                  className="px-4 py-2 rounded-full bg-[image:var(--gradient-neon)] text-primary-foreground text-sm font-medium disabled:opacity-50"
+                >
+                  {submit.isPending ? "Submitting…" : "Submit for review"}
+                </button>
+                {submit.error && <span className="text-destructive text-xs">{(submit.error as Error).message}</span>}
+              </div>
+              <div className="space-y-2">
+                {(subsQ.data ?? []).map((s) => {
+                  type SubRow = typeof s & {
+                    ad_partners?: { name: string; logo_emoji: string | null } | null;
+                  };
+                  const partner = (s as SubRow).ad_partners;
+                  return (
+                    <div key={s.id} className="rounded-lg border border-border bg-background/40 p-3 text-sm flex items-center justify-between gap-3 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <span>{partner?.logo_emoji ?? "📺"}</span>
+                        <span className="font-medium">{partner?.name}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs font-mono">
+                        <span className="text-muted-foreground">AI</span>
+                        <span className={s.ai_check === "passed" ? "text-accent" : "text-destructive"}>{s.ai_check}</span>
+                        <span className="text-muted-foreground">·</span>
+                        <span className="text-muted-foreground">partner</span>
+                        <span className={
+                          s.partner_review === "approved" ? "text-accent" :
+                          s.partner_review === "rejected" ? "text-destructive" :
+                          "text-muted-foreground"
+                        }>{s.partner_review}</span>
+                      </div>
+                      {(s.partner_notes || s.ai_notes) && (
+                        <p className="w-full text-xs italic text-muted-foreground">
+                          {s.partner_notes ?? s.ai_notes}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+                {(subsQ.data ?? []).length === 0 && (
+                  <p className="text-muted-foreground text-sm">No submissions yet.</p>
+                )}
+              </div>
+            </>
+          )}
+        </section>
       </div>
     </main>
   );
