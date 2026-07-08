@@ -123,6 +123,83 @@ export type Database = {
           },
         ]
       }
+      billboard_locations: {
+        Row: {
+          active: boolean
+          city: string
+          country: string
+          created_at: string
+          daily_impressions: number
+          description: string | null
+          height_m: number | null
+          hero_emoji: string | null
+          hourly_rate_pi: number
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+          partner_id: string
+          region: string
+          resolution: string | null
+          slot_seconds: number
+          slug: string
+          venue_category: string
+          width_m: number | null
+        }
+        Insert: {
+          active?: boolean
+          city: string
+          country: string
+          created_at?: string
+          daily_impressions?: number
+          description?: string | null
+          height_m?: number | null
+          hero_emoji?: string | null
+          hourly_rate_pi?: number
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          partner_id: string
+          region: string
+          resolution?: string | null
+          slot_seconds?: number
+          slug: string
+          venue_category: string
+          width_m?: number | null
+        }
+        Update: {
+          active?: boolean
+          city?: string
+          country?: string
+          created_at?: string
+          daily_impressions?: number
+          description?: string | null
+          height_m?: number | null
+          hero_emoji?: string | null
+          hourly_rate_pi?: number
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          partner_id?: string
+          region?: string
+          resolution?: string | null
+          slot_seconds?: number
+          slug?: string
+          venue_category?: string
+          width_m?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billboard_locations_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "ad_partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_creatives: {
         Row: {
           body: string | null
@@ -309,6 +386,143 @@ export type Database = {
           },
         ]
       }
+      invoices: {
+        Row: {
+          advertiser_id: string
+          booking_id: string
+          id: string
+          issued_at: string
+          number: string
+          paid_at: string | null
+          partner_id: string
+          platform_fee_pi: number
+          status: string
+          subtotal_pi: number
+          total_pi: number
+        }
+        Insert: {
+          advertiser_id: string
+          booking_id: string
+          id?: string
+          issued_at?: string
+          number: string
+          paid_at?: string | null
+          partner_id: string
+          platform_fee_pi: number
+          status?: string
+          subtotal_pi: number
+          total_pi: number
+        }
+        Update: {
+          advertiser_id?: string
+          booking_id?: string
+          id?: string
+          issued_at?: string
+          number?: string
+          paid_at?: string | null
+          partner_id?: string
+          platform_fee_pi?: number
+          status?: string
+          subtotal_pi?: number
+          total_pi?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "location_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "ad_partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      location_bookings: {
+        Row: {
+          advertiser_id: string
+          campaign_id: string
+          created_at: string
+          creative_id: string | null
+          decided_at: string | null
+          ends_at: string
+          hours_booked: number
+          id: string
+          location_id: string
+          partner_id: string
+          partner_notes: string | null
+          quoted_price_pi: number
+          starts_at: string
+          status: string
+        }
+        Insert: {
+          advertiser_id: string
+          campaign_id: string
+          created_at?: string
+          creative_id?: string | null
+          decided_at?: string | null
+          ends_at: string
+          hours_booked: number
+          id?: string
+          location_id: string
+          partner_id: string
+          partner_notes?: string | null
+          quoted_price_pi: number
+          starts_at: string
+          status?: string
+        }
+        Update: {
+          advertiser_id?: string
+          campaign_id?: string
+          created_at?: string
+          creative_id?: string | null
+          decided_at?: string | null
+          ends_at?: string
+          hours_booked?: number
+          id?: string
+          location_id?: string
+          partner_id?: string
+          partner_notes?: string | null
+          quoted_price_pi?: number
+          starts_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "location_bookings_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "location_bookings_creative_id_fkey"
+            columns: ["creative_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_creatives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "location_bookings_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "billboard_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "location_bookings_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "ad_partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_admin_assignments: {
         Row: {
           created_at: string
@@ -369,6 +583,61 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "partner_registrations_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "ad_partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plays: {
+        Row: {
+          advertiser_id: string
+          booking_id: string
+          duration_seconds: number
+          id: string
+          impressions: number
+          location_id: string
+          partner_id: string
+          played_at: string
+        }
+        Insert: {
+          advertiser_id: string
+          booking_id: string
+          duration_seconds?: number
+          id?: string
+          impressions?: number
+          location_id: string
+          partner_id: string
+          played_at?: string
+        }
+        Update: {
+          advertiser_id?: string
+          booking_id?: string
+          duration_seconds?: number
+          id?: string
+          impressions?: number
+          location_id?: string
+          partner_id?: string
+          played_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plays_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "location_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plays_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "billboard_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plays_partner_id_fkey"
             columns: ["partner_id"]
             isOneToOne: false
             referencedRelation: "ad_partners"
